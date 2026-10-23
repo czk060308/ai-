@@ -103,6 +103,9 @@ async def extract_need(raw_text: str, config: Settings) -> tuple[NeedFields, dic
                     check_response(response)
                     try:
                         choice = response.json()['choices'][0]
+                        # HTTP成功不代表消息结构有效；拒绝null、数组等异常选项。
+                        if not isinstance(choice, dict):
+                            raise ValueError('Choice must be an object')
                         if choice.get('finish_reason') == 'length':
                             raise ModelFailure('output_limit', '模型输出达到长度上限，未采用不完整字段。可重试或手工核对。')
                         content = choice['message']['content']

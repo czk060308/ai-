@@ -4,6 +4,8 @@
 
 当前是本机可运行的家庭照护事务工作台，首场景为“老人复诊当日准备与返家助餐安排”。这是个人参赛项目的初版骨架，真实预约、家庭成员登录及认领、worker、多智能体与多模态仍在后续开发范围中。
 
+10月23日晚最新复验：后端37项、浏览器9项通过；A01—A10中9项通过、A02部分通过，三个真实模型样例有一条漏提候选人。详情见[逐项验收报告](docs/A01-A10验收报告_20261023.md)。
+
 ## 快速打开
 
 在app目录打开PowerShell，运行：
@@ -87,6 +89,8 @@ npm.cmd run build
 # 启动8000服务后，在apps/web目录运行
 npm.cmd run test:e2e
 ```
+
+在app目录运行`./.venv/Scripts/python.exe -E -X utf8 scripts/verify_acceptance.py`可检查健康、独立进程重启和当前文件凭证。添加`--live`会真实执行三个合成输入的供应商验收，可能产生费用；每个输入最多两次供应商请求。脚本会保留失败结论，不把有字段遗漏的结果计为完整通过。
 
 Windows检测到已安装的Edge时，浏览器检查默认使用Edge；其他环境先执行npx.cmd playwright install chromium。可用ANXIN_BROWSER_CHANNEL环境变量显式指定msedge、chrome或chromium。浏览器检查会在当前数据库创建合成演示需求；后端单元和接口检查使用临时数据库。浏览器截图在app/runtime/screenshots，测试失败记录在apps/web/test-results。
 
