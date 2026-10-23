@@ -16,6 +16,7 @@ export interface Missing { field: string; label: string; reason: string }
 export interface Need {
   id: string; raw_text: string; fields: Fields; evidence: Record<string, Evidence>; version: number;
   extraction_status: string; extraction_message: string; missing_fields: Missing[];
+  extraction_review?: { policy_version?: string; model_calls?: number; repair_applied?: boolean; repair_reason?: string; explicit_fact_checks?: string };
   created_at: string; updated_at: string;
 }
 export interface Task {
@@ -26,6 +27,8 @@ export interface Rule { code: string; status: 'pass' | 'conflict' | 'unknown' | 
 export interface Resource {
   id: string; name: string; category: string; region: string; data_type: string; description: string;
   source_note: string; evidence_status: string; price: number | null; unknown_fields: string[];
+  address?: string | null; source_url?: string; source_title?: string; published_at?: string | null;
+  checked_at?: string; source_stale?: boolean; match_reason?: string; scope?: 'local_site' | 'city_directory';
 }
 export interface Plan {
   id: string; need_id: string; need_version: number; version: number; created_at: string; is_stale: boolean;

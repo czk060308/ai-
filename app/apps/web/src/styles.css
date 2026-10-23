@@ -159,6 +159,8 @@ h1 { font-size: 29px; line-height: 1.4; letter-spacing: .3px; font-weight: 680; 
 .resource-card .ant-tag { font-size: 9px; }
 .resource-meta { font-size: 10px; color: #b09158; margin-bottom: 7px; }
 .resource-card .source-note { font-size: 9px; color: #9ba6b5; }
+.resource-source { display: inline-block; font-size: 11px; margin-bottom: 7px; }
+.public-resource-query { margin-bottom: 8px; }
 .evidence-legend { margin-top: 21px; padding-top: 15px; border-top: 1px solid #edf0f5; }
 .evidence-legend > div { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; font-size: 10px; color: #8e9aac; }
 .evidence-legend i { width: 5px; height: 5px; display: inline-block; border-radius: 50%; }

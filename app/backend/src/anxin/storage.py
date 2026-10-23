@@ -3,8 +3,10 @@
 时间戳保存为带UTC偏移的ISO文本；页面另按北京时间显示。
 """
 
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+import sqlite3
 from uuid import uuid4
 
 from sqlalchemy import JSON, Integer, String, Text, create_engine, event
@@ -71,7 +73,11 @@ class Event(Base):
 def make_storage(path: str):
     """为指定数据库创建引擎和会话工厂，测试可独立使用临时路径。"""
     Path(path).resolve().parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine('sqlite:///' + Path(path).resolve().as_posix(), connect_args={'check_same_thread': False, 'timeout': 15})
+    connect_args = {'check_same_thread': False, 'timeout': 15, 'isolation_level': 'DEFERRED'}
+    # Python 3.12+显式固定驱动模式，避免未来默认autocommit变化造成重复BEGIN。
+    if hasattr(sqlite3, 'LEGACY_TRANSACTION_CONTROL'):
+        connect_args['autocommit'] = sqlite3.LEGACY_TRANSACTION_CONTROL
+    engine = create_engine('sqlite:///' + Path(path).resolve().as_posix(), connect_args=connect_args)
 
     @event.listens_for(engine, 'connect')
     def configure(dbapi_connection, _):
@@ -86,3 +92,20 @@ def make_storage(path: str):
 def add_event(db, object_id: str, action: str, **payload):
     """沿用调用者事务，保证业务变更与对应事件一起提交或回滚。"""
     db.add(Event(id=new_id('evt'), object_id=object_id, action=action, payload=payload))
+
+
+@contextmanager
+def immediate_session(sessions):
+    """SQLite专用写事务：新会话先取写锁，再读版本、生成并提交草案。
+
+    集中管理BEGIN/commit/rollback，不与Session.begin()嵌套；异常时连同
+    草案事件一起回滚。其他数据库不能复用此SQLite事务策略。
+    """
+    with sessions() as db:
+        try:
+            db.connection().exec_driver_sql('BEGIN IMMEDIATE')
+            yield db
+            db.commit()
+        except BaseException:
+            db.rollback()
+            raise

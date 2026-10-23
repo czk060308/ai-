@@ -188,11 +188,11 @@ def test_model_gateway_validates_quotes_and_handles_provider_errors(config, monk
         return httpx.Response(200, json={'choices': [{'message': {'content': json.dumps(content)}}]})
     monkeypatch.setattr('anxin.model_gateway.httpx.AsyncClient', lambda **kw: actual_client(transport=httpx.MockTransport(respond), **kw))
     cfg = replace(config, model_base_url='https://api.example/v1', model_name='contract-test', model_api_key='test-placeholder')
-    fields, evidence = asyncio.run(extract_need(DEMO_INPUT, cfg))
+    fields, evidence = asyncio.run(extract_need('生活服务预算150元', cfg))
     assert fields.budget_limit == 150 and evidence['budget_limit']['quote'] == '150元'
     mode['case'] = 'invalid'
     with pytest.raises(ModelFailure, match='invalid_evidence'):
-        asyncio.run(extract_need(DEMO_INPUT, cfg))
+        asyncio.run(extract_need('生活服务预算150元', cfg))
     mode['case'] = 'auth'
     with pytest.raises(ModelFailure, match='unauthorized'):
-        asyncio.run(extract_need(DEMO_INPUT, cfg))
+        asyncio.run(extract_need('生活服务预算150元', cfg))

@@ -35,7 +35,8 @@ def test_one_evidence_repair_keeps_original_quote_validation(monkeypatch):
         return httpx.Response(200, json={'choices': [{'message': {'content': content}}]})
     monkeypatch.setattr('anxin.model_gateway.httpx.AsyncClient', lambda **kw: original(transport=httpx.MockTransport(respond), **kw))
     config = Settings(model_base_url='https://api.example/v1', model_name='kimi-k2.6', model_api_key='test-placeholder')
-    fields, evidence = asyncio.run(extract_need(DEMO_INPUT, config))
+    # 本合约只测证据修正，完整性单独由test_extraction_checks覆盖。
+    fields, evidence = asyncio.run(extract_need('生活服务预算150元', config))
     assert len(calls) == 2 and fields.budget_limit == 150
     assert evidence['budget_limit']['quote'] == '150元'
 

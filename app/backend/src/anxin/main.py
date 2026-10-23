@@ -3,7 +3,6 @@
 构建后的前端也由此提供；当前仅面向本机开发，不提供家庭鉴权。
 """
 
-import json
 import logging
 from contextlib import asynccontextmanager
 from uuid import uuid4
@@ -18,7 +17,8 @@ from .config import APP_ROOT, Settings, settings
 from .domain import DEMO_EVIDENCE, DEMO_INPUT, DraftCreate, NeedCreate, NeedFields, NeedPatch, demo_fields, missing_fields
 from .model_gateway import ModelFailure, extract_need
 from .planning import make_plan
-from .storage import Base, Event, Need, PlanDraft, Resource, add_event, make_storage, new_id, utc_now
+from .resources import load_catalog, match_resource, present_resource
+from .storage import Base, Event, Need, PlanDraft, Resource, add_event, immediate_session, make_storage, new_id, utc_now
 
 logger = logging.getLogger('anxin')
 
@@ -30,13 +30,19 @@ def create_app(config: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app):
-        # 种子只补缺少的ID，重启不清空数据库或覆盖既有资源。
+        # 补缺少的ID；仅版本提高时升级项目管理的公开目录，不覆盖人工资料。
         Base.metadata.create_all(engine)
-        seeds = json.loads((APP_ROOT / 'data/seeds/resources.json').read_text(encoding='utf-8'))
+        seeds = load_catalog()
         with sessions.begin() as db:
             for record in seeds:
-                if not db.get(Resource, record['id']):
+                existing = db.get(Resource, record['id'])
+                if not existing:
                     db.add(Resource(id=record['id'], category=record['category'], region=record['region'], data_type=record['data_type'], payload=record))
+                elif (existing.payload.get('catalog_managed_by') == 'anxin_public_seed'
+                      and record.get('catalog_version', 0) > existing.payload.get('catalog_version', 0)):
+                    # 只更新本项目管理且明确升级的公开种子，不覆盖其他自建资料。
+                    existing.category, existing.region, existing.data_type = record['category'], record['region'], record['data_type']
+                    existing.payload = record
         yield
         engine.dispose()
 
@@ -79,11 +85,13 @@ def create_app(config: Settings | None = None) -> FastAPI:
             raise HTTPException(404, '未找到这份需求')
         return record
 
-    def serialize_need(record):
+    def serialize_need(record, db):
+        review_event = db.scalars(select(Event).where(Event.object_id == record.id, Event.action == 'extraction_finished').order_by(Event.created_at.desc()).limit(1)).first()
         return {
             'id': record.id, 'raw_text': record.raw_text, 'fields': record.fields,
             'evidence': record.evidence, 'version': record.version,
             'extraction_status': record.extraction_status, 'extraction_message': record.extraction_message,
+            'extraction_review': review_event.payload.get('review', {}) if review_event else {},
             'missing_fields': missing_fields(NeedFields.model_validate(record.fields)),
             'created_at': record.created_at, 'updated_at': record.updated_at,
         }
@@ -96,12 +104,13 @@ def create_app(config: Settings | None = None) -> FastAPI:
     def resources_for(db, region, include_demo, category=None):
         if not region:
             return []
-        query = select(Resource).where(Resource.region == region)
+        query = select(Resource)
         if not include_demo:
             query = query.where(Resource.data_type != 'demo')
         if category:
             query = query.where(Resource.category == category)
-        return [r.payload for r in db.scalars(query.order_by(Resource.id)).all()]
+        return [present_resource(r.payload, region) for r in db.scalars(query.order_by(Resource.id)).all()
+                if match_resource(r.payload, region, include_demo)]
 
     @app.get('/api/health')
     def health():
@@ -118,6 +127,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
 
     @app.post('/api/needs', status_code=201)
     async def create_need(body: NeedCreate):
+        review = {}
         if body.mode == 'demo' and body.raw_text != DEMO_INPUT:
             raise HTTPException(400, '演示字段只适用于内置样例，修改后的需求请用自动识别或手工填写')
         record = Need(id=new_id('need'), raw_text=body.raw_text, fields=NeedFields().model_dump(mode='json'),
@@ -133,10 +143,12 @@ def create_app(config: Settings | None = None) -> FastAPI:
         elif body.mode == 'model':
             try:
                 fields, evidence = await extract_need(body.raw_text, config)
+                review = getattr(evidence, 'review', {})
                 status, message = 'succeeded', '真实API识别完成，字段仍需用户核对'
             except ModelFailure as exc:
                 fields, evidence = NeedFields(), {}
                 status, message = exc.code, exc.message
+                review = getattr(exc, 'review', {})
         else:
             fields, evidence, status, message = NeedFields(), {}, 'manual', '手工填写模式，未调用模型'
         with sessions.begin() as db:
@@ -144,9 +156,9 @@ def create_app(config: Settings | None = None) -> FastAPI:
             changed = db.execute(update(Need).where(Need.id == record.id, Need.version == 1).values(
                 fields=fields.model_dump(mode='json'), evidence=evidence,
                 extraction_status=status, extraction_message=message, updated_at=utc_now()))
-            add_event(db, record.id, 'extraction_finished' if changed.rowcount else 'extraction_discarded', status=status)
+            add_event(db, record.id, 'extraction_finished' if changed.rowcount else 'extraction_discarded', status=status, review=review)
         with sessions() as db:
-            return serialize_need(require_need(db, record.id))
+            return serialize_need(require_need(db, record.id), db)
 
     @app.get('/api/needs')
     def list_needs():
@@ -158,7 +170,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
     @app.get('/api/needs/{need_id}')
     def get_need(need_id: str):
         with sessions() as db:
-            return serialize_need(require_need(db, need_id))
+            return serialize_need(require_need(db, need_id), db)
 
     @app.patch('/api/needs/{need_id}')
     def patch_need(need_id: str, body: NeedPatch):
@@ -180,7 +192,7 @@ def create_app(config: Settings | None = None) -> FastAPI:
                 raise HTTPException(409, '需求已被其他操作修改，请重新载入后再保存')
             add_event(db, need_id, 'fields_reviewed', fields=changed_fields, version=body.expected_version + 1)
         with sessions() as db:
-            return serialize_need(require_need(db, need_id))
+            return serialize_need(require_need(db, need_id), db)
 
     @app.get('/api/resources')
     def list_resources(region: str | None = None, include_demo: bool = False, category: str | None = None):
@@ -189,9 +201,8 @@ def create_app(config: Settings | None = None) -> FastAPI:
 
     @app.post('/api/needs/{need_id}/plan-drafts', status_code=201)
     def create_draft(need_id: str, body: DraftCreate):
-        with sessions.begin() as db:
+        with immediate_session(sessions) as db:
             # 在同一写事务中检查需求版本并保存草案，避免编辑与生成交错。
-            db.connection().exec_driver_sql('BEGIN IMMEDIATE')
             need = require_need(db, need_id)
             if need.version != body.expected_version:
                 raise HTTPException(409, '需求版本已变化，请载入最新字段后再生成')
