@@ -1,0 +1,33 @@
+# 本机密钥与配置；只提交空值配置模板。
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+
+# 安装依赖、构建产物与缓存由锁文件重新生成。
+node_modules/
+.venv/
+dist/
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.tsbuildinfo
+.pytest_cache/
+
+# 数据库、运行截图、日志和测试临时结果只保存在本机。
+runtime/
+*.db
+*.db-wal
+*.db-shm
+*.log
+test-results/
+playwright-report/
+
+# 历史参赛策划材料保留在本机；本仓库收录当前代码及开发说明。
+/outputs/
+.DS_Store
+Thumbs.db
+.idea/

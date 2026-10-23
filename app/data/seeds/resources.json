@@ -1,0 +1,7 @@
+[
+  {"id":"demo-accompany","name":"演示陪同资料","category":"accompany","region":"演示片区","data_type":"demo","description":"仅用于展示候选陪同资源卡片，不对应真实机构或人员。","source_note":"本项目合成演示记录","evidence_status":"demo_only","price":null,"availability":null,"unknown_fields":["实际服务主体","价格","可用时段","预约方式"]},
+  {"id":"demo-transport","name":"演示交通资料","category":"transport","region":"演示片区","data_type":"demo","description":"演示出行资料结构，不提供真实路线或交通时长。","source_note":"本项目合成演示记录","evidence_status":"demo_only","price":null,"availability":null,"unknown_fields":["路线","时长","无障碍条件","价格"]},
+  {"id":"demo-meal","name":"演示助餐资料","category":"meal","region":"演示片区","data_type":"demo","description":"演示返家后助餐信息，不代表真实商家可配送。","source_note":"本项目合成演示记录","evidence_status":"demo_only","price":null,"availability":null,"unknown_fields":["服务范围","营业时间","价格","饮食适配"]},
+  {"id":"demo-mobility","name":"演示无障碍条件资料","category":"mobility","region":"演示片区","data_type":"demo","description":"用于展示无障碍条件待核实，不自动认定满足。","source_note":"本项目合成演示记录","evidence_status":"demo_only","price":null,"availability":null,"unknown_fields":["场所条件","器具可用性","现场协助"]},
+  {"id":"demo-checklist","name":"演示出行核对清单","category":"preparation","region":"演示片区","data_type":"demo","description":"提示核对集合地点、家属接受情况与返程衔接，不包含医疗建议。","source_note":"本项目场景模板，非外部机构指南","evidence_status":"demo_only","price":null,"availability":null,"unknown_fields":["当次所需事项"]}
+]
