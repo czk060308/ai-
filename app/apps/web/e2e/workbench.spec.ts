@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('演示字段、保存、预算修改与刷新恢复', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByRole('heading', { name: '把照护安排，稳稳接住。' })).toBeVisible();
   await expect(page.getByText('把家庭照护需求变成有依据、可追踪的服务安排')).toBeVisible();
   await expect(page.getByRole('status')).toHaveText('服务就绪');
@@ -44,7 +44,7 @@ for (const failure of [
     const need = await response.json();
     await route.fulfill({ response, json: { ...need, extraction_status: failure.status, extraction_message: failure.message } });
   });
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByRole('status')).toHaveText('服务就绪');
   await page.getByRole('button', { name: '识别需求', exact: true }).click();
   await expect(page.getByText('自动识别未完成', { exact: true })).toBeVisible();
@@ -58,7 +58,7 @@ for (const failure of [
 });
 
 test('A03 删除日期后缺项可见，仍只保存待补充草案', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByRole('status')).toHaveText('服务就绪');
   await page.getByRole('button', { name: '使用演示字段', exact: true }).click();
   await page.getByLabel('服务日期', { exact: true }).fill('');
@@ -71,7 +71,7 @@ test('A03 删除日期后缺项可见，仍只保存待补充草案', async ({ p
 });
 
 test('A05 已知小计与未知报价分开显示', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByRole('status')).toHaveText('服务就绪');
   await page.getByRole('button', { name: '使用演示字段', exact: true }).click();
   await page.getByRole('button', { name: '完善陪同、交通与午餐信息', exact: true }).click();
@@ -90,7 +90,7 @@ test('A05 已知小计与未知报价分开显示', async ({ page }) => {
 
 test('窄屏可操作且没有横向溢出', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByRole('status')).toHaveText('服务就绪');
   await page.getByRole('button', { name: '使用演示字段', exact: true }).click();
   await page.getByRole('button', { name: '确认并生成草案', exact: true }).click();
@@ -101,7 +101,7 @@ test('窄屏可操作且没有横向溢出', async ({ page }) => {
 });
 
 test('时间冲突与演示资源的主动开启', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByRole('status')).toHaveText('服务就绪');
   await page.getByRole('button', { name: '使用演示字段', exact: true }).click();
   await page.getByLabel('服务地区', { exact: true }).fill('演示片区');
@@ -119,7 +119,7 @@ test('时间冲突与演示资源的主动开启', async ({ page }) => {
 });
 
 test('公开厦门资源有真实来源、时效与地区边界，不需开启demo', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByRole('status')).toHaveText('服务就绪');
   await page.getByRole('button', { name: '使用演示字段', exact: true }).click();
   await page.getByRole('button', { name: '查询厦门公开资源', exact: true }).click();

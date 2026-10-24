@@ -103,14 +103,15 @@ def parse_extraction(content: str, raw_text: str) -> tuple[NeedFields, dict]:
         raise ModelFailure('invalid_output', '模型未返回有效结构，未采用这次识别结果。请按Schema重写JSON，未知字段为null或省略。') from None
 
 
-async def extract_need(raw_text: str, config: Settings) -> tuple[NeedFields, dict]:
+async def extract_need(raw_text: str, config: Settings, *, parser=None, prompt=None) -> tuple[NeedFields, dict]:
     """最多请求两次：初次抽取及一次修正，共享整个调用的超时预算。"""
     if not config.model_configured:
         raise ModelFailure('not_configured', '尚未配置模型API。可使用演示字段或手工填写；真实自动识别暂不可用。')
     if not fact_text(raw_text).strip():
         raise ModelFailure('unsafe_input', '输入仅含越权指令，未调用模型。请填写实际照护需求。')
     # 用数据对象承载输入，不能把输入里的system/assistant等标记提升为角色。
-    body = build_request(config, build_prompt(), json.dumps({'untrusted_care_request': fact_text(raw_text)}, ensure_ascii=False))
+    parser = parser or parse_extraction
+    body = build_request(config, prompt or build_prompt(), json.dumps({'untrusted_care_request': fact_text(raw_text)}, ensure_ascii=False))
     attempts, repair_reason = 0, None
     try:
         # 结构、证据或遗漏共享一次修正机会与总超时，不能无限自我重试。
@@ -134,7 +135,7 @@ async def extract_need(raw_text: str, config: Settings) -> tuple[NeedFields, dic
                     except (ValueError, KeyError, IndexError, TypeError):
                         raise ModelFailure('invalid_output', '模型服务未返回有效的消息结构，可重试或手工填写。') from None
                     try:
-                        fields, evidence = parse_extraction(content, raw_text)
+                        fields, evidence = parser(content, raw_text)
                         return fields, CheckedEvidence(evidence, {
                             'policy_version': 'explicit-facts-v1', 'model_calls': attempts,
                             'repair_applied': bool(attempt), 'repair_reason': repair_reason,

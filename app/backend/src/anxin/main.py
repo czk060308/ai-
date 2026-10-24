@@ -16,6 +16,7 @@ from sqlalchemy import select, text, update
 from .config import APP_ROOT, Settings, settings
 from .domain import DEMO_EVIDENCE, DEMO_INPUT, DraftCreate, NeedCreate, NeedFields, NeedPatch, demo_fields, missing_fields
 from .model_gateway import ModelFailure, extract_need
+from .meal_routes import meal_router
 from .planning import make_plan
 from .resources import load_catalog, match_resource, present_resource
 from .storage import Base, Event, Need, PlanDraft, Resource, add_event, immediate_session, make_storage, new_id, utc_now
@@ -244,6 +245,8 @@ def create_app(config: Settings | None = None) -> FastAPI:
             require_need(db, need_id)
             return [{'id': r.id, 'action': r.action, 'payload': r.payload, 'created_at': r.created_at}
                     for r in db.scalars(select(Event).where(Event.object_id == need_id).order_by(Event.created_at.desc()).limit(50)).all()]
+
+    app.include_router(meal_router(sessions, config))
 
     @app.get('/api/{unmatched:path}')
     def missing_api(unmatched: str):

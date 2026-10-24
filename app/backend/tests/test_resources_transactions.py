@@ -22,7 +22,7 @@ def client(tmp_path):
 
 
 def test_public_catalog_has_sources_and_no_claimed_live_prices():
-    public = [r for r in load_catalog() if r['data_type'] == 'public']
+    public = [r for r in load_catalog() if r['data_type'] == 'public' and r['city'] == '厦门市']
     assert len(public) == 7
     assert len([r for r in public if r['category'] == 'meal']) == 5
     assert all(r['source_url'].startswith('https://') and r['checked_at'] and r['unknown_fields'] for r in public)

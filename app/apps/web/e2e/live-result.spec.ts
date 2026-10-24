@@ -11,7 +11,7 @@ test('真实识别结果的界面回读，不额外请求供应商', async ({ pa
   test.skip(response.status() === 404, '验收使用的数据库记录已不存在');
   expect(response.ok()).toBe(true);
   await page.addInitScript(id => localStorage.setItem('anxin.need_id', id), record.need_id);
-  await page.goto('/');
+  await page.goto('/?scene=care');
   await expect(page.getByText('真实API识别', { exact: true })).toBeVisible();
   await expect(page.getByLabel('服务日期', { exact: true })).toHaveValue('2026-10-24');
   await expect(page.getByLabel('预算上限（元）', { exact: true })).toHaveValue('150');

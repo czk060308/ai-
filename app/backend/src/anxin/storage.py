@@ -70,6 +70,16 @@ class Event(Base):
     created_at: Mapped[str] = mapped_column(String, default=utc_now)
 
 
+class MealCase(Base):
+    """助餐接力独立业务记录；版本保护全过程，不改写旧复诊需求。"""
+    __tablename__ = 'meal_cases'
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    payload: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[str] = mapped_column(String, default=utc_now)
+    updated_at: Mapped[str] = mapped_column(String, default=utc_now)
+
+
 def make_storage(path: str):
     """为指定数据库创建引擎和会话工厂，测试可独立使用临时路径。"""
     Path(path).resolve().parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,48 @@
+/* 番禺助餐工作台：延续原页面卡片与字号体系，业务表单按移动端顺序堆叠。 */
+.scene-switcher { background: #e8f1f1; display: flex; gap: 4px; padding: 7px 4%; font-size: 12px; }
+.scene-switcher a { padding: 7px 15px; border-radius: 7px; color: #627e83; }
+.scene-switcher a.active { color: #126b68; background: white; font-weight: 650; }
+.meal-shell { min-height: 100vh; background: #f3f7f8; color: #263f49; }
+.meal-header { display: flex; align-items: center; gap: 40px; padding: 19px 4%; background: white; border-bottom: 1px solid #e1eaed; }
+.meal-header .brand-mark { background: #157c76; }.meal-header .brand { color: #244951; }
+.meal-location { color: #70898e; font-size: 12px; display: flex; align-items: center; gap: 10px; }
+.meal-online { margin-left: auto; color: #738e8b; font-size: 11px; white-space: nowrap; }
+.meal-main { max-width: 1840px; padding: 30px 3.5% 0; }
+.meal-hero { display: flex; align-items: center; justify-content: space-between; gap: 25px; margin-bottom: 24px; }
+.meal-hero h1 { color: #244b53; font-size: 30px; }.meal-hero p { color: #72898d; font-size: 14px; margin: 8px 0 12px; }
+.meal-hero .eyebrow { color: #508a86; }.meal-hero > div > span { color: #789896; font-size: 11px; line-height: 1.8; }
+.meal-hero-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+.meal-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 19px; }
+.meal-stats > div { border: 1px solid #e0e9eb; border-radius: 11px; background: white; padding: 16px 21px; display: flex; flex-direction: column; gap: 5px; }
+.meal-stats span { font-size: 11px; color: #7a9095; }.meal-stats strong { font-size: 27px; font-weight: 650; color: #24796f; }
+.meal-stats small { color: #99a7ac; font-size: 10px; }.meal-busy { display: flex; align-items: center; gap: 10px; color: #53837e; font-size: 12px; margin: 14px 0; }
+.meal-grid { display: grid; grid-template-columns: minmax(280px, .96fr) minmax(370px, 1.33fr) minmax(260px, .83fr); gap: 18px; align-items: start; }
+.meal-grid > *, .meal-center > * { min-width: 0; }.meal-center { display: flex; flex-direction: column; gap: 18px; }
+.meal-grid .panel-heading h2, .meal-events h2 { font-size: 14px; margin: 0; }.meal-grid .panel-body { padding: 19px; }
+.meal-grid .section-number { color: #418a81; background: #eef8f4; }.meal-grid .field-grid { margin-bottom: 12px; }
+.meal-grid input { width: 100%; min-width: 0; }.meal-grid .ant-input-textarea { min-width: 0; }
+.meal-grid .ant-btn { white-space: normal; height: auto; min-height: 34px; font-size: 11px; padding-top: 6px; padding-bottom: 6px; }
+.meal-grid .field .ant-select { min-height: 34px; }.meal-mode { padding: 13px; background: #f5f9f9; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+.meal-mode .ant-checkbox-wrapper { font-size: 11px; line-height: 1.7; }.meal-create-buttons { display: flex; gap: 7px; flex-wrap: wrap; }
+.meal-extraction { margin: 17px 0; background: #f6f9fc; border-radius: 8px; padding: 11px; }.meal-extraction p { font-size: 10px; line-height: 1.8; color: #819098; margin: 6px 0; }
+.meal-wide { margin-bottom: 12px; }.meal-warning { color: #ae813b; font-size: 10px; line-height: 1.8; }
+.meal-grid .block-heading { margin-top: 18px; }.meal-grid .missing-summary { margin-bottom: 14px; }.meal-grid .missing-tags { margin-top: 9px; }
+.meal-quote { font-size: 11px; overflow-wrap: anywhere; line-height: 1.8; }.meal-quote b { color: #607f85; }.meal-quote .ant-tag { font-size: 9px; margin-left: 5px; }
+.meal-grid .history-item > span { white-space: normal; max-width: 100%; }.meal-grid .history-item { cursor: pointer; }
+.meal-progress { display: flex; flex-wrap: wrap; gap: 6px 12px; border-bottom: 1px solid #ecf1f2; padding-bottom: 19px; margin-bottom: 7px; }
+.meal-progress > span { font-size: 10px; color: #aab7b8; display: flex; align-items: center; gap: 4px; }.meal-progress > .done { color: #228474; font-weight: 650; }
+.meal-subtitle { font-size: 13px; margin: 23px 0 8px; color: #39636a; }.meal-grid .microcopy { margin-bottom: 12px; font-size: 10px; }
+.meal-confirmations { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 15px; }.meal-confirmations .ant-checkbox-wrapper { font-size: 11px; color: #6e868a; }
+.meal-grid .ant-input-textarea + .ant-btn { margin-top: 10px; }.meal-selection { display: flex; flex-direction: column; background: #edf7f3; padding: 12px; border-radius: 8px; gap: 6px; margin: 10px 0 15px; }
+.meal-selection b { font-size: 12px; color: #3d7d71; }.meal-selection span { font-size: 10px; color: #829b91; overflow-wrap: anywhere; }
+.meal-saved { background: #f1f8f4; border-left: 3px solid #6caf8c; padding: 12px; border-radius: 5px; margin-top: 13px; overflow-wrap: anywhere; }
+.meal-saved b { font-size: 11px; color: #49846c; }.meal-saved p { font-size: 11px; color: #718f7f; line-height: 1.9; margin: 8px 0; }.meal-saved small { font-size: 9px; color: #91a69d; }
+.meal-acceptance { font-size: 11px; color: #6b8f7c; line-height: 1.9; }.meal-action-buttons { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0; }
+.meal-events .panel-heading { padding: 14px 19px; }.meal-events .audit-list { margin: 0; }.meal-events p { font-size: 10px; line-height: 1.7; color: #8c9a9e; overflow-wrap: anywhere; }
+.meal-resources .ant-alert { margin-bottom: 13px; }.meal-resources .ant-input-search { margin-bottom: 6px; }.meal-resource-wrap { border: 1px solid #e5ecec; border-radius: 9px; margin: 13px 0; padding: 11px; }
+.meal-resource-wrap.selected { border-color: #7fbcae; background: #f5fcf9; }.meal-resource-wrap .resource-card { border: none; padding: 0; margin: 0; }.meal-resource-wrap .resource-card p { overflow-wrap: anywhere; }
+.meal-source-phone { font-size: 10px; color: #9c8c6b; line-height: 1.9; margin: 10px 0; }.meal-resource-wrap .resource-card .ant-tag { white-space: normal; line-height: 1.8; }
+.meal-empty { min-height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; }.meal-empty > .anticon { color: #82b5a8; background: #eff8f4; font-size: 36px; padding: 26px; border-radius: 24px; margin-bottom: 22px; }
+.meal-empty h3 { font-size: 17px; color: #547c7a; line-height: 1.7; }.meal-empty p { color: #8a9c9e; font-size: 12px; line-height: 2; }.meal-empty > span { color: #81a49b; font-size: 11px; margin-top: 10px; }
+@media (max-width: 1180px) { .meal-grid { grid-template-columns: minmax(280px, 1fr) minmax(370px, 1.4fr); }.meal-resources { grid-column: 1 / -1; }.meal-resource-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }.meal-resource-wrap { margin: 8px 0; } }
+@media (max-width: 760px) { .scene-switcher { padding: 7px 12px; font-size: 11px; }.meal-header { padding: 15px; gap: 8px; flex-wrap: wrap; }.meal-header .brand { font-size: 20px; }.meal-header .brand-mark { height: 33px; width: 33px; font-size: 20px; }.meal-location { margin-left: auto; font-size: 10px; gap: 4px; }.meal-location .ant-tag { font-size: 9px; margin: 0; }.meal-online { width: 100%; font-size: 9px; padding-left: 43px; }.meal-main { padding: 24px 14px 0; }.meal-hero { flex-direction: column; align-items: start; gap: 14px; }.meal-hero h1 { font-size: 23px; }.meal-hero p { font-size: 12px; line-height: 1.8; }.meal-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }.meal-stats > div { padding: 13px; }.meal-stats strong { font-size: 24px; }.meal-stats small { font-size: 9px; }.meal-grid { display: flex; flex-direction: column; }.meal-grid > * { width: 100%; }.meal-center { width: 100%; }.meal-grid .panel-body { padding: 17px; }.meal-resource-list { display: block; }.meal-resource-wrap { margin: 12px 0; }.meal-empty { min-height: 290px; padding: 16px; }.meal-grid .field-grid { gap: 12px 8px; }.meal-progress { gap: 9px; }.meal-grid .field > span { line-height: 1.7; }.meal-grid .ant-alert { overflow-wrap: anywhere; } }
