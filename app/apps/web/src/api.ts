@@ -25,6 +25,7 @@ export interface Task {
 }
 export interface Rule { code: string; status: 'pass' | 'conflict' | 'unknown' | 'not_applicable'; title: string; detail: string }
 export interface Resource {
+  additional_sources?: { source_url: string; differences: string[] }[];
   id: string; name: string; category: string; region: string; data_type: string; description: string;
   source_note: string; evidence_status: string; price: number | null; unknown_fields: string[];
   address?: string | null; source_url?: string; source_title?: string; published_at?: string | null;

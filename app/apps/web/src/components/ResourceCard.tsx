@@ -15,6 +15,7 @@ export function ResourceCard({ resource: r }: { resource: Resource }) {
     {r.match_reason && <p>{r.match_reason}</p>}
     <p className="source-note">来源：{r.source_note}</p>
     {source && <a className="resource-source" href={source} target="_blank" rel="noopener noreferrer" title={r.source_title}>查看官方来源 ↗</a>}
+    {r.additional_sources?.map(s => <p key={s.source_url} className="source-note"><a href={s.source_url} target="_blank" rel="noopener noreferrer">第二份官方历史名单 ↗</a><br />{s.differences.length ? `来源差异：${s.differences.join('、')}；保留两份记录待核实` : '名称及核对字段一致，仍需核实当天服务'}</p>)}
     {!demo && <p className="source-note">发布：{r.published_at || '未标明'} · 页面核对：{r.checked_at || '待核对'}<br />仅核对公开页面，未联系服务主体。</p>}
     <span className="microcopy">待核实：{r.unknown_fields.join('、')}</span>
   </article>;

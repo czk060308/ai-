@@ -70,6 +70,16 @@ def main():
     if not records or len({r['id'] for r in records}) != len(records):
         raise ValueError('Missing or duplicate Panyu records')
     target = APP / 'data/seeds/panyu_resources.json'
+    # 基础名单刷新不得删掉已人工审核的第二来源；变化后提升版本才能更新数据库。
+    existing = {r['id']: r for r in json.loads(target.read_text(encoding='utf-8'))} if target.exists() else {}
+    for record in records:
+        old = existing.get(record['id'])
+        if old:
+            if old.get('additional_sources'):
+                record['additional_sources'] = old['additional_sources']
+            record['catalog_version'] = old.get('catalog_version', 1)
+            if any(record.get(k) != old.get(k) for k in record if k not in ('catalog_version', 'checked_at')):
+                record['catalog_version'] += 1
     target.write_text(json.dumps(records, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
     runtime = APP / 'runtime'
     runtime.mkdir(exist_ok=True)

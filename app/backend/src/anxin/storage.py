@@ -80,6 +80,14 @@ class MealCase(Base):
     updated_at: Mapped[str] = mapped_column(String, default=utc_now)
 
 
+class Volunteer(Base):
+    """按日期登记代号和可用窗口，不保存姓名、电话或登录凭证。"""
+    __tablename__ = 'meal_volunteers'
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    payload: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[str] = mapped_column(String, default=utc_now)
+
+
 def make_storage(path: str):
     """为指定数据库创建引擎和会话工厂，测试可独立使用临时路径。"""
     Path(path).resolve().parent.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,131 @@
+{
+  "checked_at": "2026-10-26T20:54:58.678534+08:00",
+  "sources": [
+    {
+      "url": "https://mzj.gz.gov.cn/gk/fwjgylb/",
+      "http_status": 200,
+      "sha256": "a3f14889b858274b36d83dd2b5b4c0c2a8146e16e432e3abd13871d2ba27423f"
+    },
+    {
+      "url": "https://mzj.gz.gov.cn/gk/fwjgylb/content/post_10111922.html",
+      "http_status": 200,
+      "sha256": "dffb60d0551e66008f218563bbb17ca681a59859bde2676f74c0517605b3059a"
+    },
+    {
+      "url": "https://mzj.gz.gov.cn/gk/fwjgylb/content/post_10144469.html",
+      "http_status": 200,
+      "sha256": "89cb200feb9cad4d2ee51890bbbbd3d65af211171aa42be597a901540a0ea8cc"
+    }
+  ],
+  "official_records": 154,
+  "local_records": 154,
+  "town_counts": {
+    "东环街道": 6,
+    "化龙镇": 11,
+    "南村镇": 15,
+    "大石街道": 6,
+    "大龙街道": 18,
+    "小谷围街道": 5,
+    "市桥街道": 11,
+    "新造镇": 5,
+    "桥南街道": 4,
+    "沙头街道": 7,
+    "沙湾街道": 11,
+    "洛浦街道": 4,
+    "石壁街道": 7,
+    "石楼镇": 20,
+    "石碁镇": 16,
+    "钟村街道": 8
+  },
+  "leading_panyu_records": 13,
+  "cross_matched": 12,
+  "comparisons": [
+    {
+      "resource_id": "gz_panyu_meal_1003",
+      "name": "番禺区大石街道大石社区居民委员会片区长者饭堂",
+      "differences": [
+        "address"
+      ]
+    },
+    {
+      "resource_id": "gz_panyu_meal_1028",
+      "name": "番禺区洛浦街道丽江社区居民委员会片区长者饭堂",
+      "differences": []
+    },
+    {
+      "resource_id": "gz_panyu_meal_1034",
+      "name": "番禺区南村镇雅居乐北苑社区居委会片区长者饭堂",
+      "differences": [
+        "source_phone"
+      ]
+    },
+    {
+      "resource_id": "gz_panyu_meal_1063",
+      "name": "番禺区沙湾街道紫坭社区居民委员会片区长者饭堂",
+      "differences": []
+    },
+    {
+      "resource_id": "gz_panyu_meal_1067",
+      "name": "番禺区石壁街道韦涌村长者饭堂",
+      "differences": []
+    },
+    {
+      "resource_id": "gz_panyu_meal_1076",
+      "name": "番禺区石楼镇亚运城社区居民委员会长者饭堂",
+      "differences": []
+    },
+    {
+      "resource_id": "gz_panyu_meal_1113",
+      "name": "番禺区市桥街道大市社区居民委员会片区长者饭堂",
+      "differences": [
+        "source_phone"
+      ]
+    },
+    {
+      "resource_id": "gz_panyu_meal_1115",
+      "name": "番禺区市桥街道田心社区居民委员会片区长者饭堂",
+      "differences": []
+    },
+    {
+      "resource_id": "gz_panyu_meal_1111",
+      "name": "番禺区市桥街道德安社区居民委员会片区长者饭堂",
+      "differences": [
+        "source_phone"
+      ]
+    },
+    {
+      "resource_id": "gz_panyu_meal_1114",
+      "name": "番禺区市桥街道康乐社区居民委员会片区长者饭堂",
+      "differences": []
+    },
+    {
+      "resource_id": "gz_panyu_meal_1129",
+      "name": "番禺区新造镇新造社区居民委员会长者饭堂",
+      "differences": []
+    },
+    {
+      "resource_id": "gz_panyu_meal_1138",
+      "name": "番禺区钟村街道祈福新村社区居民委员会片区长者饭堂",
+      "differences": [
+        "address",
+        "source_phone"
+      ]
+    }
+  ],
+  "unmatched_leading": [
+    {
+      "name": "番禺区桥南街道南郊村长者饭堂",
+      "town": "桥南街道",
+      "address": "番禺区桥南街南新大街50号"
+    }
+  ],
+  "primary_snapshot_drift": [],
+  "basis": "public_pages_only_no_operator_contact",
+  "limitations": [
+    "主名单截至2025-02-05",
+    "第二名单发布于2025-03-06",
+    "查阅日期不等于营业核实日期",
+    "未核实本次供餐/价格/资格/代取",
+    "存在差异时保留两份来源，不自动合并为当前事实"
+  ]
+}

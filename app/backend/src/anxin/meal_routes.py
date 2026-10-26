@@ -13,6 +13,7 @@ from .meal_domain import (MEAL_SAMPLE, PANYU_TOWNS, MealAction, MealCreate, Meal
                           MealFeedback, MealFields, SupplyCheck, demo_meal_fields,
                           meal_checks, meal_prompt, parse_meal)
 from .model_gateway import ModelFailure, extract_need
+from .meal_ops import conflicts
 from .resources import match_resource, present_resource
 from .storage import Event, MealCase, Resource, add_event, immediate_session, new_id, utc_now
 
@@ -52,17 +53,17 @@ def meal_router(sessions, config):
         return {'raw_text': MEAL_SAMPLE, 'fields': demo_meal_fields().model_dump(mode='json'), 'data_type': 'demo'}
 
     @router.get('/resources')
-    def resources(town: str | None = None, query: str = '', limit: int = 20):
+    def resources(town: str | None = None, query: str = '', limit: int = 20, offset: int = 0):
         if town and town not in PANYU_TOWNS:
             raise HTTPException(422, '请选择公开目录支持的番禺镇街')
-        if not 1 <= limit <= 50 or len(query) > 80:
+        if not 1 <= limit <= 50 or len(query) > 80 or not 0 <= offset <= 10000:
             raise HTTPException(422, '资源查询范围无效')
         with sessions() as db:
             records = db.scalars(select(Resource).where(Resource.data_type == 'public').order_by(Resource.id)).all()
             items = [r.payload for r in records if r.payload.get('city') == '广州市' and r.payload.get('district') == '番禺区'
                      and (not town or r.payload.get('town') == town)
                      and (not query or query in r.payload['name'] or query in r.payload.get('address', ''))]
-        return {'items': [present_resource(r, '广州市番禺区') for r in items[:limit]], 'total': len(items),
+        return {'items': [present_resource(r, '广州市番禺区') for r in items[offset:offset + limit]], 'total': len(items), 'offset': offset,
                 'towns': PANYU_TOWNS, 'scope': 'public_historical_directory', 'snapshot_date': '2025-02-05'}
 
     @router.get('/stats')
@@ -161,6 +162,9 @@ def meal_router(sessions, config):
                        'supply_check': None, 'acceptance': None, 'feedback': None}
             payload.pop('picked_up', None)
             payload.pop('handed_over', None)
+            if any(k in changed for k in ('pickup_person', 'availability_start', 'availability_end', 'town', 'service_date')):
+                payload.pop('volunteer_id', None)
+                payload.pop('volunteer_snapshot', None)
             return save(db, record, payload, 'meal_replanned', fields=changed, previous_status=record.payload['status'])
 
     @router.post('/cases/{case_id}/verify')
@@ -196,6 +200,8 @@ def meal_router(sessions, config):
             if body.action == 'accept':
                 if state != 'verified' or not meal_checks(payload)['ready_to_accept']:
                     raise HTTPException(409, '请先补齐字段、核实供餐并解决时间/预算冲突，再记录接受')
+                if conflicts(db, payload, case_id):
+                    raise HTTPException(409, '这位登记志愿者已有重叠的已接受任务，请调整时间或候选人')
                 payload.update(status='accepted', acceptance=action_note)
             elif body.action in ('picked_up', 'handed_over'):
                 required = 'accepted' if body.action == 'picked_up' else 'picked_up'

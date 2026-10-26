@@ -6,6 +6,7 @@ import type { AuditEvent, Health } from './api';
 import type { MealCase, MealFields, MealHistory, MealResource, MealResources, MealStats } from './mealApi';
 import { mealStatuses } from './mealApi';
 import { ResourceCard } from './components/ResourceCard';
+import MealOperations from './MealOperations';
 
 const eventNames: Record<string, string> = { meal_created: '原文已保存', meal_extraction_finished: '字段处理结束',
   meal_replanned: '安排修改，原核实与接受失效', meal_supply_verified: '人工供餐核实已记录', meal_accept: '接受已记录',
@@ -25,6 +26,7 @@ export default function MealWorkbench() {
   const [catalog, setCatalog] = useState<MealResources>({ items: [], total: 0, towns: [], snapshot_date: '' });
   const [resourceLoading, setResourceLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [resourcePage, setResourcePage] = useState(0);
   const [selected, setSelected] = useState('');
   const [dataType, setDataType] = useState<'demo' | 'pilot'>('demo');
   const [family, setFamily] = useState('');
@@ -83,13 +85,14 @@ export default function MealWorkbench() {
     let active = true;
     setResourceLoading(true);
     const timer = window.setTimeout(() => {
-      const params = new URLSearchParams({ limit: '12', query: search });
+      const params = new URLSearchParams({ limit: '12', offset: String(resourcePage * 12), query: search });
       if (fields?.town) params.set('town', fields.town);
       void api<MealResources>('/meal/resources?' + params).then(r => { if (active) { setCatalog(r); setResourceLoading(false); } })
         .catch(err => { if (active) { setError(String(err.message)); setCatalog(c => ({ ...c, items: [], total: 0 })); setResourceLoading(false); } });
     }, 200);
     return () => { active = false; window.clearTimeout(timer); };
-  }, [fields?.town, search]);
+  }, [fields?.town, search, resourcePage]);
+  useEffect(() => { setResourcePage(0); }, [fields?.town, search]);
 
   async function create(mode: 'model' | 'manual' | 'demo') {
     await run('正在保存与核对助餐需求', async () => {
@@ -173,6 +176,9 @@ export default function MealWorkbench() {
       {error && <Alert className="global-alert" type="error" showIcon title="操作未完成" description={error} closable onClose={() => setError('')} />}
       {notice && <Alert className="global-alert" type="success" showIcon title={notice} closable onClose={() => setNotice('')} />}
       {busy && <div className="meal-busy" role="status"><Spin size="small" /> {busy}</div>}
+      <MealOperations record={record} towns={catalog.towns} locked={!!busy || dirty || rawChanged}
+        onLoad={async id => { await run('正在载入待办', async () => install(await api<MealCase>(`/meal/cases/${id}`))); }}
+        onChanged={async () => { if (record) await install(await api<MealCase>(`/meal/cases/${record.id}`)); }} />
       <div className="meal-grid">
         <section className="panel meal-demand"><div className="panel-heading"><div><span className="section-number">01</span><h2>需求与补问</h2></div>{record && <Tag>v{record.version}</Tag>}</div><div className="panel-body">
           <label className="input-label" htmlFor="meal-raw">家庭需要怎样的午餐安排？</label><Input.TextArea id="meal-raw" aria-label="助餐需求原文" value={raw} maxLength={6000} rows={5} onChange={e => setRaw(e.target.value)} disabled={!!busy} placeholder="日期、镇街、份数、交接时间、预算、谁能代取……不填姓名电话与详细住址。" />
@@ -237,7 +243,8 @@ export default function MealWorkbench() {
         <aside className="panel meal-resources"><div className="panel-heading"><div><span className="section-number">03</span><h2>番禺助餐资源</h2></div><Tag>{resourceLoading ? '正在读取' : `${catalog.total} 条候选`}</Tag></div><div className="panel-body">
           <Alert type="warning" title="官方历史名单，不能直接接单" description={`名单截至${catalog.snapshot_date || '2025-02-05'}，当前营业、价格、代取和资格须核实。未按距离或实时可用性排序。`} />
           <Input.Search aria-label="搜索饭堂或地址" value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索饭堂或地址" allowClear />
-          <p className="microcopy">{fields?.town ? `当前筛选：${fields.town}` : '当前浏览全区；建档后按服务镇街筛选'}。展示前12条，可搜索缩小范围。</p>
+          <p className="microcopy">{fields?.town ? `当前筛选：${fields.town}` : '当前浏览全区；建档后按服务镇街筛选'}。第{resourcePage + 1}页，每页12条。</p>
+          <div className="meal-action-buttons"><Button size="small" disabled={resourceLoading || resourcePage === 0} onClick={() => setResourcePage(p => p - 1)}>上一页资源</Button><Button size="small" disabled={resourceLoading || (resourcePage + 1) * 12 >= catalog.total} onClick={() => setResourcePage(p => p + 1)}>下一页资源</Button></div>
           <div className="meal-resource-list">{catalog.items.map(r => <div className={`meal-resource-wrap ${selected === r.id ? 'selected' : ''}`} key={r.id}><ResourceCard resource={r} />
             <p className="meal-source-phone">历史咨询电话：{r.source_phone || '未列出'}<br />历史开放日：{r.source_open_days} · 当时是否对外：{r.source_external_residents ? '是' : '否'}<br />以上均不是当前核实结果。</p>
             <Button size="small" block disabled={!record || !!busy || locked || dirty || rawChanged || resourceLoading} onClick={() => { setSelected(r.id); setCheckNote(''); setSupplyStart(''); setSupplyEnd(''); setQuote(''); setTakeaway(false); setEligible(false); setDiet(false); }}>{selected === r.id ? '已选择，仍需当天核实' : '选择并核实这处资源'}<ArrowRightOutlined /></Button>
